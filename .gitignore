@@ -1,0 +1,38 @@
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+.elc
+auto-save-list
+tramp
+.\#*
+
+# Org-mode
+.org-id-locations
+*_archive
+
+# SVN
+.svn/
+
+# http://www.gnu.org/software/automake
+Makefile.in
+/m4
+/stamp-h1
+/mentohust.spec
+/Makefile
+.deps/
+# http://www.gnu.org/software/autoconf
+/COPYING
+/ABOUT-NLS
+/config.*
+/autom4te.cache
+/aclocal.m4
+/compile
+/configure
+/depcomp
+/install-sh
+/missing
+/INSTALL
+
+# Object files
+*.o
