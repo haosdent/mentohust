@@ -137,14 +137,14 @@ static int checkFile() {
 
 fileError:
 	if (dataFile[strlen(dataFile)-1] != '/')
-		printf(_("!! 所选文件%s无效，改用内置数据认证。\n"), dataFile);
+		printf(_("!! the data file %s is invalid, change to auth by internal data.\n"), dataFile);
 	return -1;
 }
 
 void printSuConfig(const char *SuConfig) {
 	char dbuf[2048], *text;
 	if (decodeConfig(SuConfig, (BYTE *)dbuf, sizeof(dbuf))) {
-		printf(_("!! 指定的SuConfig.dat文件无效。\n"));
+		printf(_("!! the SuConfig.dat is invalid.\n"));
 	} else if ((text=gbk2utf(dbuf, strlen(dbuf))) != NULL) {
 		printf("%s\n", text);
 		free(text);
@@ -188,7 +188,7 @@ static int getAddress()
 	int sock = socket(AF_INET, SOCK_DGRAM, 0);
 	if (sock < 0)
 	{
-		printf(_("!! 创建套接字失败!\n"));
+		printf(_("!! Failed to create socket!\n"));
 		return -1;
 	}
 	strcpy(ifr.ifr_name, nic);
@@ -223,7 +223,7 @@ static int getAddress()
 #ifndef NO_ARP
 	gateMAC[0] = 0xFE;
 	if (ioctl(sock, SIOCGIFADDR, &ifr) < 0)
-		printf(_("!! 在网卡%s上获取IP失败!\n"), nic);
+		printf(_("!! Failed to get the IP of network card %s!\n"), nic);
 	else {
 		rip = ((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr.s_addr;
 		if (gateway!=0 && (startMode%3!=2 || ((u_char *)&gateway)[3]!=0x02))
@@ -234,7 +234,7 @@ static int getAddress()
 #else
 	if (dhcpMode!=0 || ip==-1) {
 		if (ioctl(sock, SIOCGIFADDR, &ifr) < 0)
-			printf(_("!! 在网卡%s上获取IP失败!\n"), nic);
+			printf(_("!! Failed to get the IP of netword card %s!\n"), nic);
 		else
 			ip = ((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr.s_addr;
 	}
@@ -242,20 +242,20 @@ static int getAddress()
 
 	if (dhcpMode!=0 || mask==-1) {
 		if (ioctl(sock, SIOCGIFNETMASK, &ifr) < 0)
-			printf(_("!! 在网卡%s上获取子网掩码失败!\n"), nic);
+			printf(_("!! Failed to get the mask of network card %s!\n"), nic);
 		else
 			mask = ((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr.s_addr;
 	}
 	close(sock);
 
-	printf(_("** 本机MAC:\t%s\n"), formatHex(localMAC, 6));
-	printf(_("** 使用IP:\t%s\n"), formatIP(ip));
-	printf(_("** 子网掩码:\t%s\n"), formatIP(mask));
+	printf(_("** Local MAC:\t%s\n"), formatHex(localMAC, 6));
+	printf(_("** Local IP:\t%s\n"), formatIP(ip));
+	printf(_("** Local Mask:\t%s\n"), formatIP(mask));
 	return 0;
 
 getMACError:
 	close(sock);
-	printf(_("!! 在网卡%s上获取MAC失败!\n"), nic);
+	printf(_("!! Failed to get the MAC of network card %s!\n"), nic);
 	return -1;
 }
 
@@ -378,7 +378,7 @@ static int readPacket(int type)
 	return 0;
 
 fileError:
-	printf(_("!! 所选文件%s无效，改用内置数据认证。\n"), dataFile);
+	printf(_("!! the data file %s is invalid, change to auth by internal data.\n"), dataFile);
 	bufType -= 2;
 	if (bufType==1 && fillSize<0x1d7) {
 		free(fillBuf);
@@ -464,15 +464,15 @@ static int Check(const u_char *md5Seed)	/* 客户端校验 */
 {
 	char final_str[129];
 	int value;
-	printf(_("** 客户端版本:\t%d.%d\n"), fillBuf[0x3B], fillBuf[0x3C]);
-	printf(_("** MD5种子:\t%s\n"), formatHex(md5Seed, 16));
+	printf(_("** Client version:\t%d.%d\n"), fillBuf[0x3B], fillBuf[0x3C]);
+	printf(_("** MD5 seed:\t%s\n"), formatHex(md5Seed, 16));
 	value = check_init(dataFile);
 	if (value == -1) {
-		printf(_("!! 缺少8021x.exe信息，客户端校验无法继续！\n"));
+		printf(_("!! Lack of 8021x.exe information, couldn't continue client auth!\n"));
 		return 1;
 	}
 	V2_check(md5Seed, final_str);
-	printf(_("** V2校验值:\t%s\n"), final_str);
+	printf(_("** V2 Check value:\t%s\n"), final_str);
 	setProperty(0x17, (u_char *)final_str, 32);
 	check_free();
 	return 0;
@@ -562,7 +562,7 @@ int isOnline()
 	return -1;
 
 pingError:
-	perror(_("!! Ping主机出错，关闭该功能"));
+	perror(_("!! Failed to ping server, close this option please."));
 	if (sock != -1)
 		close(sock);
 	pingHost = 0;

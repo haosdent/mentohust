@@ -163,7 +163,7 @@ int getpasswd(char  passwd[])
 	
 	if(tcgetattr(STDIN_FILENO,&termios_buf)!=0)
 	{
-		perror(_("获取终端属性失败"));
+		perror(_("Failed to get the properties of terminal."));
 		return -1;
 	}
 	
@@ -171,7 +171,7 @@ int getpasswd(char  passwd[])
 	
 	if(tcsetattr(STDIN_FILENO,TCSAFLUSH,&termios_buf)!=0)
 	{
-		perror(_("设置终端属性失败"));
+		perror(_("Failed to get the properties of terminal."));
 		return -2;
 	}
 	
@@ -183,7 +183,7 @@ int getpasswd(char  passwd[])
 
 	if(tcgetattr(STDIN_FILENO,&termios_buf)!=0)
 	{
-		perror(_("获取终端属性失败"));
+		perror(_("Failed to get the properties of terminal."));
 		return -1;
 	}
 	
@@ -191,7 +191,7 @@ int getpasswd(char  passwd[])
 	
 	if(tcsetattr(STDIN_FILENO,TCSAFLUSH,&termios_buf)!=0)
 	{
-		perror(_("设置终端属性失败"));
+		perror(_("Failed to get the properties of terminal."));
 		return -2;
 	}
 	
@@ -205,7 +205,7 @@ void initConfig(int argc, char **argv)
 	int exitFlag = 0;	/* 0Nothing 1退出 2重启 */
 	int daemonMode = D_DAEMONMODE;	/* 是否后台运行 */
 
-	printf(_("\n欢迎使用MentoHUST\t版本: %s\n"
+	printf(_("\nWelcome to MentoHUST\tVersion: %s\n"
 			"Copyright (C) 2009-2010 HustMoon Studio\n"
 			"人到华中大，有甜亦有辣。明德厚学地，求是创新家。\n"
 			"Bug report to %s\n\n"), VERSION, PACKAGE_BUGREPORT);
@@ -214,8 +214,8 @@ void initConfig(int argc, char **argv)
 #ifndef NO_DYLOAD
 	if (load_libpcap() == -1) {
 #ifndef NO_NOTIFY
-		if (showNotify && show_notify(_("MentoHUST - 错误提示"),
-			_("载入libpcap失败, 请检查该库文件！"), 1000*showNotify) < 0)
+		if (showNotify && show_notify(_("MentoHUST - Error"),
+			_("Failed to load libpcap library,check if it exists please!"), 1000*showNotify) < 0)
 			showNotify = 0;
 #endif
 		exit(EXIT_FAILURE);
@@ -226,8 +226,8 @@ void initConfig(int argc, char **argv)
 		saveFlag = 1;
 		if (getAdapter() == -1) {	/* 找不到（第一块）网卡？ */
 #ifndef NO_NOTIFY
-		if (showNotify && show_notify(_("MentoHUST - 错误提示"),
-			_("找不到网卡！"), 1000*showNotify) < 0)
+		if (showNotify && show_notify(_("MentoHUST - Error"),
+			_("Couldn't find the network card!"), 1000*showNotify) < 0)
 			showNotify = 0;
 #endif
 			exit(EXIT_FAILURE);
@@ -236,19 +236,19 @@ void initConfig(int argc, char **argv)
 	if (userName[0]=='\0' || password[0]=='\0')	/* 未写用户名密码？ */
 	{
 		saveFlag = 1;
-		printf(_("?? 请输入用户名: "));
+		printf(_("?? Please type your user name: "));
 		scanf("%s", userName);
 		
-		printf(_("?? 请输入密码: "));
+		printf(_("?? Please type your password: "));
 		//scanf("%s", password);
 		getpasswd(password);
 		//last newline eaten by scanf in getpasswd
 		printf("\n");
 		
-		printf(_("?? 请选择组播地址(0标准 1锐捷私有 2赛尔): "));
+		printf(_("?? Please select your mode(0 Standard, 1 Ruijie, 2 Saier): "));
 		scanf("%u", &startMode);
 		startMode %= 3;
-		printf(_("?? 请选择DHCP方式(0不使用 1二次认证 2认证后 3认证前): "));
+		printf(_("?? Please select when to DHCP(0 None, 1 Auth twice, 2 After auth, 3 Before auth): "));
 		scanf("%u", &dhcpMode);
 		dhcpMode %= 4;
 	}
@@ -264,8 +264,8 @@ void initConfig(int argc, char **argv)
 	printConfig();
 	if (fillHeader()==-1 || openPcap()==-1) {	/* 获取IP、MAC，打开网卡 */
 #ifndef NO_NOTIFY
-		if (showNotify && show_notify(_("MentoHUST - 错误提示"),
-			_("获取MAC地址或打开网卡失败！"), 1000*showNotify) < 0)
+		if (showNotify && show_notify(_("MentoHUST - Error"),
+			_("Failed to get the MAC of current network card!"), 1000*showNotify) < 0)
 			showNotify = 0;
 #endif
 		exit(EXIT_FAILURE);
@@ -454,7 +454,7 @@ static int getAdapter()
 	char errbuf[PCAP_ERRBUF_SIZE];
 	if (pcap_findalldevs(&alldevs, errbuf)==-1 || alldevs==NULL)
 	{
-		printf(_("!! 查找网卡失败: %s\n"), errbuf);
+		printf(_("!! Failed to search network card: %s\n"), errbuf);
 		return -1;
 	}
 	for (d=alldevs; d!=NULL; d=d->next)
@@ -462,7 +462,7 @@ static int getAdapter()
 		num++;
 		if (!(d->flags & PCAP_IF_LOOPBACK) && strcmp(d->name, "any")!=0)
 		{
-			printf(_("** 网卡[%d]:\t%s\n"), num, d->name);
+			printf(_("** Network Card[%d]:\t%s\n"), num, d->name);
 			avail++;
 			i = num;
 		}
@@ -470,19 +470,19 @@ static int getAdapter()
 	if (avail == 0)
 	{
 		pcap_freealldevs(alldevs);
-		printf(_("!! 找不到网卡！\n"));
+		printf(_("!! Couldn't find any network card！\n"));
 		return -1;
 	}
 	if (avail > 1)
 	{
-		printf(_("?? 请选择网卡[1-%d]: "), num);
+		printf(_("?? Please select a network card[1-%d]: "), num);
 		scanf("%d", &i);
 		if (i < 1)
 			i = 1;
 		else if (i > num)
 			i = num;
 	}
-	printf(_("** 您选择了第[%d]块网卡。\n"), i);
+	printf(_("** You select the No.[%d] network card.\n"), i);
 	for (d=alldevs; i>1; d=d->next, i--);
 	strncpy(nic, d->name, sizeof(nic)-1);
 	pcap_freealldevs(alldevs);
@@ -491,32 +491,32 @@ static int getAdapter()
 
 static void printConfig()
 {
-	char *addr[] = {_("标准"), _("锐捷"), _("赛尔")};
-	char *dhcp[] = {_("不使用"), _("二次认证"), _("认证后"), _("认证前")};
-	printf(_("** 用户名:\t%s\n"), userName);
-	/* printf("** 密码:\t%s\n", password); */
-	printf(_("** 网卡: \t%s\n"), nic);
+	char *addr[] = {_("Standard"), _("Ruijie"), _("Saier")};
+	char *dhcp[] = {_("None"), _("Auth twice"), _("After auth"), _("Before auth")};
+	printf(_("** User name:\t%s\n"), userName);
+	/* printf("** Password:\t%s\n", password); */
+	printf(_("** Network card: \t%s\n"), nic);
 	if (gateway)
-		printf(_("** 网关地址:\t%s\n"), formatIP(gateway));
+		printf(_("** the IP of Gateway:\t%s\n"), formatIP(gateway));
 	if (dns)
-		printf(_("** DNS地址:\t%s\n"), formatIP(dns));
+		printf(_("** the IP of DNS:\t%s\n"), formatIP(dns));
 	if (pingHost)
-		printf(_("** 智能重连:\t%s\n"), formatIP(pingHost));
-	printf(_("** 认证超时:\t%u秒\n"), timeout);
-	printf(_("** 心跳间隔:\t%u秒\n"), echoInterval);
-	printf(_("** 失败等待:\t%u秒\n"), restartWait);
+		printf(_("** Auto reconnection:\t%s\n"), formatIP(pingHost));
+	printf(_("** Timeout of auth:\t%u seconds\n"), timeout);
+	printf(_("** Interval of heartbeat:\t%u seconds\n"), echoInterval);
+	printf(_("** Wait for restart when failed:\t%u seconds\n"), restartWait);
 	if (maxFail)
-		printf(_("** 允许失败:\t%u次\n"), maxFail);
-	printf(_("** 组播地址:\t%s\n"), addr[startMode]);
-	printf(_("** DHCP方式:\t%s\n"), dhcp[dhcpMode]);
+		printf(_("** Limit of failed:\t%u times\n"), maxFail);
+	printf(_("** Mode:\t%s\n"), addr[startMode]);
+	printf(_("** when to DHCP:\t%s\n"), dhcp[dhcpMode]);
 #ifndef NO_NOTIFY
 	if (showNotify)
-		printf(_("** 通知超时:\t%d秒\n"), showNotify);
+		printf(_("** Timeout of notification:\t%d seconds\n"), showNotify);
 #endif
 	if (bufType >= 2)
-		printf(_("** 数据文件:\t%s\n"), dataFile);
+		printf(_("** Data file:\t%s\n"), dataFile);
 	if (dhcpMode != 0)
-		printf(_("** DHCP脚本:\t%s\n"), dhcpScript);
+		printf(_("** DHCP script:\t%s\n"), dhcpScript);
 }
 
 static int openPcap()
@@ -525,7 +525,7 @@ static int openPcap()
 	struct bpf_program fcode;
 	if ((hPcap = pcap_open_live(nic, 2048, startMode >= 3  , 1000, buf)) == NULL)
 	{
-		printf(_("!! 打开网卡%s失败: %s\n"), nic, buf);
+		printf(_("!! Failed to open the %s network card: %s\n"), nic, buf);
 		return -1;
 	}
 	fmt = formatHex(localMAC, 6);
@@ -539,7 +539,7 @@ static int openPcap()
 	if (pcap_compile(hPcap, &fcode, buf, 0, 0xffffffff) == -1
 			|| pcap_setfilter(hPcap, &fcode) == -1)
 	{
-		printf(_("!! 设置pcap过滤器失败: %s\n"), pcap_geterr(hPcap));
+		printf(_("!! Failed to set pcap filter: %s\n"), pcap_geterr(hPcap));
 		return -1;
 	}
 	pcap_freecode(&fcode);
@@ -587,9 +587,9 @@ static void saveConfig(int daemonMode)
 #endif
 	setString(&buf, "MentoHUST", "Username", userName);
 	if (saveFile(buf, CFG_FILE) != 0)
-		printf(_("!! 保存认证参数到%s失败！\n"), CFG_FILE);
+		printf(_("!! Failed to save auth parameters to %s!\n"), CFG_FILE);
 	else
-		printf(_("** 认证参数已成功保存到%s.\n"), CFG_FILE);
+		printf(_("** Save auth parameters to %s successfully!\n"), CFG_FILE);
 	free(buf);
 }
 
@@ -598,7 +598,7 @@ static void checkRunning(int exitFlag, int daemonMode)
 	struct flock fl;
 	lockfd = open (LOCK_FILE, O_RDWR|O_CREAT, LOCKMODE);
 	if (lockfd < 0) {
-		perror(_("!! 打开锁文件失败"));
+		perror(_("!! Failed to open the lock file."));
 		goto error_exit;
 	}
 	fl.l_start = 0;
@@ -606,28 +606,28 @@ static void checkRunning(int exitFlag, int daemonMode)
 	fl.l_len = 0;
 	fl.l_type = F_WRLCK;
 	if (fcntl(lockfd, F_GETLK, &fl) < 0) {
-		perror(_("!! 获取文件锁失败"));
+		perror(_("!! Couldn't get the lock file."));
 		goto error_exit;
 	}
 	if (exitFlag) {
 		if (fl.l_type != F_UNLCK) {
-			printf(_(">> 已发送退出信号给MentoHUST进程(PID=%d).\n"), fl.l_pid);
+			printf(_(">> Have been sent exit signal to the MentoHUST process(PID=%d).\n"), fl.l_pid);
 			if (kill(fl.l_pid, SIGINT) == -1)
-				perror(_("!! 结束进程失败"));
+				perror(_("!! Failed to kill the process."));
 		}
 		else
-			printf(_("!! 没有MentoHUST正在运行！\n"));
+			printf(_("!! MentoHUST is not running.\n"));
 		if (exitFlag == 1)
 			exit(EXIT_SUCCESS);
 	}
 	else if (fl.l_type != F_UNLCK) {
-		printf(_("!! MentoHUST已经运行(PID=%d)!\n"), fl.l_pid);
+		printf(_("!! MentoHUST is running now(PID=%d)!\n"), fl.l_pid);
 		exit(EXIT_FAILURE);
 	}
 	if (daemonMode) {	/* 貌似我过早进入后台模式了，就给个选项保留输出或者输出到文件吧 */
-		printf(_(">> 进入后台运行模式，使用参数-k可退出认证。\n"));
+		printf(_(">> In background mode now, you can use -k to exit the auth.\n"));
 		if (daemon(0, (daemonMode+1)%2))
-			perror(_("!! 后台运行失败"));
+			perror(_("!! Failed to run in background mode."));
 		else if (daemonMode == 3) {
 			freopen(LOG_FILE, "w", stdout);
 			setvbuf(stdout, (char *)NULL, _IOLBF, BUFSIZ);
@@ -637,15 +637,15 @@ static void checkRunning(int exitFlag, int daemonMode)
 	fl.l_type = F_WRLCK;
 	fl.l_pid = getpid();
 	if (fcntl(lockfd, F_SETLKW, &fl) < 0) {
-		perror(_("!! 加锁失败"));
+		perror(_("!! Failed to add lock on the process."));
 		goto error_exit;
 	}
 	return;
 
 error_exit:
 #ifndef NO_NOTIFY
-	if (showNotify && show_notify(_("MentoHUST - 错误提示"),
-		_("操作锁文件失败，请检查是否为root权限！"), 1000*showNotify) < 0)
+	if (showNotify && show_notify(_("MentoHUST - Error"),
+		_("Failed to control the lock file, check if you are root now!"), 1000*showNotify) < 0)
 		showNotify = 0;
 #endif
 	exit(EXIT_FAILURE);

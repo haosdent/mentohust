@@ -75,16 +75,16 @@ int switchState(int type)
 		switch (type)
 		{
 		case ID_START:
-			printf(_(">> 找不到服务器，重启认证!\n"));
+			printf(_(">> Couldn't find the auth server,will restart auth!\n"));
 			break;
 		case ID_IDENTITY:
-			printf(_(">> 发送用户名超时，重启认证!\n"));
+			printf(_(">> Timeout when send user name,will restart auth!\n"));
 			break;
 		case ID_CHALLENGE:
-			printf(_(">> 发送密码超时，重启认证!\n"));
+			printf(_(">> Timeout when send password,will restart auth!\n"));
 			break;
 		case ID_WAITECHO:
-			printf(_(">> 等候响应包超时，自行响应!\n"));
+			printf(_(">> Timeout when wait for response.\n"));
 			return switchState(ID_ECHO);
 		}
 		return restart();
@@ -104,7 +104,7 @@ int switchState(int type)
 	case ID_ECHO:
 		if (pingHost && sendCount*echoInterval > 60) {	/* 1分钟左右 */
 			if (isOnline() == -1) {
-				printf(_(">> 认证掉线，开始重连!\n"));
+				printf(_(">> Lost connection,start to connect again!\n"));
 				return switchState(ID_START);
 			}
 			sendCount = 1;
@@ -133,9 +133,9 @@ int restart()
 static int renewIP()
 {
 	setTimer(0);	/* 取消定时器 */
-	printf(_(">> 正在获取IP...\n"));
+	printf(_(">> Start to get IP...\n"));
 	system(dhcpScript);
-	printf(_(">> 操作结束。\n"));
+	printf(_(">> Finished operation.\n"));
 	dhcpMode += 3; /* 标记为已获取，123变为456，5不需再认证*/
 	if (fillHeader() == -1)
 		exit(EXIT_FAILURE);
@@ -158,7 +158,7 @@ static int sendStartPacket()
 	{
 		if (sendCount == 0)
 		{
-			printf(_(">> 寻找服务器...\n"));
+			printf(_(">> Search auth server...\n"));
 			memcpy(sendPacket, STANDARD_ADDR, 6);
 			memcpy(sendPacket+0x06, localMAC, 6);
 			*(u_int32_t *)(sendPacket+0x0C) = htonl(0x888E0101);
@@ -170,7 +170,7 @@ static int sendStartPacket()
 	}
 	if (sendCount == 0)
 	{
-		printf(_(">> 寻找服务器...\n"));
+		printf(_(">> Search auth server...\n"));
 		fillStartPacket();
 		fillEtherAddr(0x888E0101);
 		memcpy(sendPacket+0x12, fillBuf, fillSize);
@@ -186,7 +186,7 @@ static int sendIdentityPacket()
 	{
 		if (sendCount == 0)
 		{
-			printf(_(">> 发送用户名...\n"));
+			printf(_(">> Send user name...\n"));
 			*(u_int16_t *)(sendPacket+0x0E) = htons(0x0100);
 			*(u_int16_t *)(sendPacket+0x10) = *(u_int16_t *)(sendPacket+0x14) = htons(nameLen+30);
 			sendPacket[0x12] = 0x02;
@@ -202,7 +202,7 @@ static int sendIdentityPacket()
 	}
 	if (sendCount == 0)
 	{
-		printf(_(">> 发送用户名...\n"));
+		printf(_(">> Send user name...\n"));
 		fillEtherAddr(0x888E0100);
 		nameLen = strlen(userName);
 		*(u_int16_t *)(sendPacket+0x14) = *(u_int16_t *)(sendPacket+0x10) = htons(nameLen+5);
@@ -223,7 +223,7 @@ static int sendChallengePacket()
 	{
 		if (sendCount == 0)
 		{
-			printf(_(">> 发送密码...\n"));
+			printf(_(">> Send password...\n"));
 			*(u_int16_t *)(sendPacket+0x0E) = htons(0x0100);
 			*(u_int16_t *)(sendPacket+0x10) = *(u_int16_t *)(sendPacket+0x14) = htons(nameLen+22);
 			sendPacket[0x12] = 0x02;
@@ -238,7 +238,7 @@ static int sendChallengePacket()
 	}
 	if (sendCount == 0)
 	{
-		printf(_(">> 发送密码...\n"));
+		printf(_(">> Send password...\n"));
 		fillMd5Packet(capBuf+0x18);
 		fillEtherAddr(0x888E0100);
 		*(u_int16_t *)(sendPacket+0x14) = *(u_int16_t *)(sendPacket+0x10) = htons(nameLen+22);
@@ -271,7 +271,7 @@ static int sendEchoPacket()
 			0x00,0x1E,0xFF,0xFF,0x37,0x77,0x7F,0x9F,0xFF,0xFF,0xD9,0x13,0xFF,0xFF,0x37,0x77,
 			0x7F,0x9F,0xFF,0xFF,0xF7,0x2B,0xFF,0xFF,0x37,0x77,0x7F,0x3F,0xFF
 		};
-		printf(_(">> 发送心跳包以保持在线...\n"));
+		printf(_(">> Send heartbeat package to keep alive...\n"));
 		fillEtherAddr(0x888E01BF);
 		memcpy(sendPacket+0x10, echo, sizeof(echo));
 		setTimer(echoInterval);
