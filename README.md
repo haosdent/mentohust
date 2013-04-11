@@ -21,8 +21,3 @@
 
 更建议的方法是到[这里](http://code.google.com/p/mentohust/)下载安装包，然后放到手机后安装打开。
 
-## 从源代码构建
-
-## TODO List
-
-  - 将libpcap的依赖去掉，变成Android内置的方式，从而无需root也可运行
